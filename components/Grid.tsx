@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { CellMap } from "@/types"
+import { useSync } from "@/hooks/useSync"
 import { useSheet } from "@/hooks/useSheet"
 
 interface GridProps {
@@ -14,11 +14,17 @@ interface GridProps {
 
 const COLUMNS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))
 
-export default function Grid({ setSaveStatus, activeCell, setActiveCell, setActiveCellRaw }: GridProps) {
+export default function Grid({ docId, setSaveStatus, activeCell, setActiveCell, setActiveCellRaw }: GridProps) {
     const [rowCount, setRowCount] = useState(100)
     const [focusedCell, setFocusedCell] = useState<string | null>(null)
     const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
-    const { cells, updateCell, getCellDisplay } = useSheet()
+    const { cells, updateCell, getCellDisplay, loadCells } = useSheet()
+    const { saveCell } = useSync({
+        docId,
+        cells,
+        loadCells,
+        setSaveStatus,
+    })
 
     const ROWS = Array.from({ length: rowCount }, (_, i) => i + 1)
 
@@ -37,8 +43,8 @@ export default function Grid({ setSaveStatus, activeCell, setActiveCell, setActi
 
     const handleBlur = (cellId: string) => {
         setFocusedCell(null)
-        // Firebase sync wired in Phase 4
-        setSaveStatus("saved")
+        const cell = cells[cellId]
+        saveCell(cellId, cell?.raw ?? "", cell?.computed ?? "")
     }
 
     const handleKeyDown = (

@@ -8,14 +8,14 @@ interface UseSheetReturn {
     cells: CellMap
     updateCell: (cellId: string, raw: string) => void
     getCellDisplay: (cellId: string, isFocused: boolean) => string
-    loadCells: (initialCells: CellMap) => void
+    loadCells: (initialCells: CellMap | ((prev: CellMap) => CellMap)) => void
 }
 
 export function useSheet() {
     const [cells, setCells] = useState<CellMap>({})
     // Called once when the sheet loads from Firestore
     // Sets the initial cell state and computes all formulas
-    const loadCells = useCallback((initialCells: CellMap) => {
+    const loadCells = useCallback((initialCells: CellMap | ((prev: CellMap) => CellMap)) => {
         setCells(initialCells)
     }, [])
     // Called every time a cell value changes
