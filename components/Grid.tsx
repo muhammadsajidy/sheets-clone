@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import { CellMap } from "@/types"
+import { useSheet } from "@/hooks/useSheet"
 
 interface GridProps {
     docId: string
@@ -14,10 +15,10 @@ interface GridProps {
 const COLUMNS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))
 
 export default function Grid({ setSaveStatus, activeCell, setActiveCell, setActiveCellRaw }: GridProps) {
-    const [cells, setCells] = useState<CellMap>({})
     const [rowCount, setRowCount] = useState(100)
     const [focusedCell, setFocusedCell] = useState<string | null>(null)
     const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+    const { cells, updateCell, getCellDisplay } = useSheet()
 
     const ROWS = Array.from({ length: rowCount }, (_, i) => i + 1)
 
@@ -30,13 +31,7 @@ export default function Grid({ setSaveStatus, activeCell, setActiveCell, setActi
     }
 
     const handleChange = (cellId: string, value: string) => {
-        setCells((prev) => ({
-            ...prev,
-            [cellId]: {
-                raw: value,
-                computed: value, // formula parser wired in Phase 4
-            },
-        }))
+        updateCell(cellId, value)
         setActiveCellRaw(value)
     }
 
@@ -127,16 +122,14 @@ export default function Grid({ setSaveStatus, activeCell, setActiveCell, setActi
                                 const cellId = getCellId(col, row)
                                 const isActive = activeCell === cellId
                                 const isFocused = focusedCell === cellId
-                                const displayValue = isFocused
-                                    ? (cells[cellId]?.raw ?? "")
-                                    : (cells[cellId]?.computed ?? "")
+                                const displayValue = getCellDisplay(cellId, isFocused)
 
                                 return (
                                     <td
                                         key={cellId}
                                         className={`relative w-24 min-w-24 h-7 border-r border-b border-gray-200 p-0
-                      ${isActive ? "outline outline-2 outline-blue-500 outline-offset-[-1px] z-10" : ""}
-                    `}
+                                        ${isActive ? "outline outline-blue-500 -outline-offset-1 z-10" : ""}
+                                        `}
                                     >
                                         <input
                                             ref={(el) => { inputRefs.current[cellId] = el }}
