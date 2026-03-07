@@ -1,12 +1,10 @@
 import { CellMap } from "@/types";
-import { exp } from "firebase/firestore/pipelines";
 
 export function computeCell(raw: string, cells: CellMap, computing: Set<string> = new Set()): string {
     // No formula, return as is
     if (!raw.startsWith("=")) return raw;
     // Strip the leading '=' and trim whitespace
     let expr = raw.slice(1).trim().toUpperCase();
-
     // Helper funciton for expanding cell range like A1:B2 into A1, A2, B1, B2
     const expandRange = (start: string, end: string): string[] => {
         const startCol = start.match(/[A-Z]+/)?.[0] || ""
@@ -25,7 +23,7 @@ export function computeCell(raw: string, cells: CellMap, computing: Set<string> 
         return cells
     }
     // expanding SUM ranges into their computed sum
-    expr = expr.replace(/([A-Z]+[0-9]+):([A-Z]+[0-9]+)/g, (_, start, end) => {
+    expr = expr.replace(/SUM\(([A-Z]+\d+):([A-Z]+\d+)\)/g, (_, start, end) => {
         const cellIds = expandRange(start, end)
         const sum = cellIds.reduce((total, cellId) => {
             // Recursively compute each cell in the range
@@ -33,6 +31,33 @@ export function computeCell(raw: string, cells: CellMap, computing: Set<string> 
             return total + (isNaN(val) ? 0 : val)
         }, 0)
         return String(sum)
+    })
+    // AVERAGe
+    expr = expr.replace(/AVERAGE\(([A-Z]+\d+):([A-Z]+\d+)\)/g, (_, start, end) => {
+        const cellIds = expandRange(start, end)
+        const values = cellIds.map(cellId => {
+            const val = parseFloat(computeCell(cells[cellId]?.raw ?? "0", cells, new Set([...computing, cellId])))
+            return isNaN(val) ? 0 : val
+        })
+        return String(values.reduce((a, b) => a + b, 0) / values.length)
+    })
+    // MIN
+    expr = expr.replace(/MIN\(([A-Z]+\d+):([A-Z]+\d+)\)/g, (_, start, end) => {
+        const cellIds = expandRange(start, end)
+        const values = cellIds.map(cellId => {
+            const val = parseFloat(computeCell(cells[cellId]?.raw ?? "0", cells, new Set([...computing, cellId])))
+            return isNaN(val) ? Infinity : val
+        })
+        return String(Math.min(...values))
+    })
+    // MAX
+    expr = expr.replace(/MAX\(([A-Z]+\d+):([A-Z]+\d+)\)/g, (_, start, end) => {
+        const cellIds = expandRange(start, end)
+        const values = cellIds.map(cellId => {
+            const val = parseFloat(computeCell(cells[cellId]?.raw ?? "0", cells, new Set([...computing, cellId])))
+            return isNaN(val) ? -Infinity : val
+        })
+        return String(Math.max(...values))
     })
     // Resolving remaining cell references
     expr = expr.replace(/[A-Z]+\d+/g, (cellId) => {
