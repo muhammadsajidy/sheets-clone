@@ -81,8 +81,8 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-5 h-5 border-2 border-slate-400 border-t-slate-900 rounded-full animate-spin" />
       </div>
     )
   }
@@ -90,12 +90,12 @@ export default function LoginPage() {
   if (user) return null
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
 
       <div
         className="fixed inset-0 opacity-[0.03]"
         style={{
-          backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
         }}
       />
@@ -104,27 +104,27 @@ export default function LoginPage() {
 
         <div className="mb-8 text-center">
           <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 bg-white rounded-sm flex items-center justify-center">
+            <div className="w-7 h-7 bg-slate-900 rounded-sm flex items-center justify-center">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="1" y="1" width="6" height="6" fill="#0a0a0a" />
-                <rect x="9" y="1" width="6" height="6" fill="#0a0a0a" />
-                <rect x="1" y="9" width="6" height="6" fill="#0a0a0a" />
-                <rect x="9" y="9" width="6" height="6" fill="#0a0a0a" opacity="0.3" />
+                <rect x="1" y="1" width="6" height="6" fill="#ffffff" />
+                <rect x="9" y="1" width="6" height="6" fill="#ffffff" />
+                <rect x="1" y="9" width="6" height="6" fill="#ffffff" />
+                <rect x="9" y="9" width="6" height="6" fill="#ffffff" opacity="0.3" />
               </svg>
             </div>
-            <span className="text-white text-xl font-semibold tracking-tight">Sheetly</span>
+            <span className="text-slate-900 text-xl font-semibold tracking-tight">Sheetly</span>
           </div>
-          <p className="text-white/40 text-sm">
+          <p className="text-slate-500 text-sm">
             {isSignUp ? "Create an account to get started" : "Sign in to your workspace"}
           </p>
         </div>
 
-        <div className="bg-white/4 border border-white/8 rounded-xl p-6 backdrop-blur-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 backdrop-blur-sm">
 
           <button
             onClick={handleGoogle}
             disabled={submitting}
-            className="w-full flex items-center justify-center gap-3 bg-white text-black text-sm font-medium py-2.5 rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+            className="w-full flex items-center justify-center gap-3 bg-slate-900 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
           >
             <svg width="16" height="16" viewBox="0 0 16 16">
               <path d="M15.68 8.18c0-.57-.05-1.11-.14-1.64H8v3.1h4.3a3.68 3.68 0 0 1-1.6 2.42v2h2.58c1.51-1.39 2.4-3.44 2.4-5.88z" fill="#4285F4"/>
@@ -136,18 +136,18 @@ export default function LoginPage() {
           </button>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-white/8" />
-            <span className="text-white/30 text-xs">or</span>
-            <div className="flex-1 h-px bg-white/8" />
+            <div className="flex-1 h-px bg-slate-200" />
+            <span className="text-slate-400 text-xs">or</span>
+            <div className="flex-1 h-px bg-slate-200" />
           </div>
 
-          <div className="flex bg-white/5 rounded-lg p-1 mb-6">
+          <div className="flex bg-slate-100 rounded-lg p-1 mb-6">
             <button
               onClick={() => { setIsSignUp(false); setError("") }}
               className={`flex-1 py-1.5 text-sm rounded-md transition-all duration-200 ${
                 !isSignUp
-                  ? "bg-white text-black font-medium"
-                  : "text-white/50 hover:text-white/80"
+                  ? "bg-slate-900 text-white font-medium"
+                  : "text-slate-500 hover:text-slate-900/80"
               }`}
             >
               Sign in
@@ -156,8 +156,8 @@ export default function LoginPage() {
               onClick={() => { setIsSignUp(true); setError("") }}
               className={`flex-1 py-1.5 text-sm rounded-md transition-all duration-200 ${
                 isSignUp
-                  ? "bg-white text-black font-medium"
-                  : "text-white/50 hover:text-white/80"
+                  ? "bg-slate-900 text-white font-medium"
+                  : "text-slate-500 hover:text-slate-900/80"
               }`}
             >
               Sign up
@@ -171,7 +171,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleEmailSubmit()}
-              className="w-full bg-white/5 border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-white/20 focus:bg-white/5 transition-all"
+              className="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-slate-400 focus:bg-slate-100 transition-all"
             />
           </div>
 
@@ -183,7 +183,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleEmailSubmit()}
-              className="w-full bg-white/5 border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all"
+              className="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-slate-400 focus:bg-slate-200 transition-all"
             />
           </div>
 
@@ -196,11 +196,11 @@ export default function LoginPage() {
           <button
             onClick={handleEmailSubmit}
             disabled={submitting}
-            className="w-full bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-medium py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 text-sm font-medium py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <span className="flex items-center justify-center gap-2">
-                <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border-2 border-slate-400 border-t-slate-900 rounded-full animate-spin" />
                 {isSignUp ? "Creating account..." : "Signing in..."}
               </span>
             ) : (
