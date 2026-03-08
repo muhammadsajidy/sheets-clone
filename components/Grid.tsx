@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { useSync } from "@/hooks/useSync"
 import { useSheet } from "@/hooks/useSheet"
+import { useSync } from "@/hooks/useSync"
+import { CellMap, PresenceUser } from "@/types"
 
 interface GridProps {
     docId: string
@@ -10,14 +11,25 @@ interface GridProps {
     activeCell: string
     setActiveCell: (cellId: string) => void
     setActiveCellRaw: (raw: string) => void
+    onlineUsers: PresenceUser[]
+    currentUid: string
 }
 
 const COLUMNS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))
 
-export default function Grid({ docId, setSaveStatus, activeCell, setActiveCell, setActiveCellRaw }: GridProps) {
+export default function Grid({
+    docId,
+    setSaveStatus,
+    activeCell,
+    setActiveCell,
+    setActiveCellRaw,
+    onlineUsers,
+    currentUid,
+}: GridProps) {
     const [rowCount, setRowCount] = useState(100)
     const [focusedCell, setFocusedCell] = useState<string | null>(null)
     const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+
     const { cells, updateCell, getCellDisplay, loadCells } = useSheet()
     const { saveCell } = useSync({
         docId,
@@ -86,13 +98,14 @@ export default function Grid({ docId, setSaveStatus, activeCell, setActiveCell, 
                     moveTo(COLUMNS[colIndex - 1], row)
                 }
                 break
-            case "ArrowRight":
+            case "ArrowRight": {
                 const input = e.target as HTMLInputElement
                 if (input.selectionStart === input.value.length) {
                     e.preventDefault()
                     moveTo(COLUMNS[colIndex + 1], row)
                 }
                 break
+            }
             case "Escape":
                 e.preventDefault()
                 inputRefs.current[getCellId(col, row)]?.blur()
@@ -130,13 +143,32 @@ export default function Grid({ docId, setSaveStatus, activeCell, setActiveCell, 
                                 const isFocused = focusedCell === cellId
                                 const displayValue = getCellDisplay(cellId, isFocused)
 
+                                // Find if another user is currently on this cell
+                                const otherUser = onlineUsers.find(
+                                    (u) => u.activeCell === cellId && u.uid !== currentUid
+                                )
+
                                 return (
                                     <td
                                         key={cellId}
                                         className={`relative w-24 min-w-24 h-7 border-r border-b border-gray-200 p-0
-                                        ${isActive ? "outline outline-blue-500 -outline-offset-1 z-10" : ""}
-                                        `}
+                      ${isActive ? "outline outline-blue-500 -outline-offset-1 z-10" : ""}
+                    `}
+                                        style={otherUser ? {
+                                            outline: `2px solid ${otherUser.color}`,
+                                            outlineOffset: "-1px"
+                                        } : {}}
                                     >
+                                        {/* Floating name tag for other user's cursor */}
+                                        {otherUser && (
+                                            <div
+                                                className="absolute -top-5 left-0 text-white text-xs px-1.5 py-0.5 rounded whitespace-nowrap z-20 pointer-events-none"
+                                                style={{ backgroundColor: otherUser.color }}
+                                            >
+                                                {otherUser.displayName}
+                                            </div>
+                                        )}
+
                                         <input
                                             ref={(el) => { inputRefs.current[cellId] = el }}
                                             value={displayValue}
@@ -154,6 +186,7 @@ export default function Grid({ docId, setSaveStatus, activeCell, setActiveCell, 
                 </tbody>
             </table>
 
+            {/* Add more rows */}
             <div className="flex items-center justify-center py-3 border-t border-gray-200">
                 <button
                     onClick={() => setRowCount((prev) => prev + 100)}

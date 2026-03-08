@@ -5,9 +5,10 @@ import { useRouter, useParams } from "next/navigation"
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore"
 import { useAuth } from "@/context/AuthContext"
 import { db } from "@/lib/firebase"
-import { SheetDocument } from "@/types"
+import { SheetDocument, PresenceUser } from "@/types"
 import FormulaBar from "@/components/FormulaBar"
 import Grid from "@/components/Grid"
+import PresenceBar from "@/components/PresenceBar"
 
 export default function DocPage() {
     const { user, loading } = useAuth()
@@ -20,6 +21,7 @@ export default function DocPage() {
     const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
     const [activeCell, setActiveCell] = useState("A1")
     const [activeCellRaw, setActiveCellRaw] = useState("")
+    const [onlineUsers, setOnlineUsers] = useState<PresenceUser[]>([])
 
     const handleTitleBlur = async () => {
         if (!id) return
@@ -64,7 +66,6 @@ export default function DocPage() {
         fetchDoc()
     }, [user, id, router])
 
-
     if (loading || docLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -95,17 +96,33 @@ export default function DocPage() {
                     className="bg-transparent text-gray-900 text-sm font-medium text-center outline-none border-b border-transparent hover:border-gray-300 focus:border-gray-400 transition-colors w-48"
                 />
 
-                {/* Right — save status */}
-                <div className="flex items-center gap-2 ml-4">
-                    <div className={`w-2 h-2 rounded-full ${saveStatus === "saved" ? "bg-green-500" :
-                            saveStatus === "saving" ? "bg-yellow-500" :
-                                "bg-red-500"
-                        }`} />
-                    <span className="text-gray-500 text-xs">
-                        {saveStatus === "saved" ? "Saved" :
-                            saveStatus === "saving" ? "Saving..." :
-                                "Error"}
-                    </span>
+                {/* Right — presence avatars + save status */}
+                <div className="flex items-center gap-4 ml-4">
+
+                    {/* Online users avatar stack */}
+                    {user && (
+                        <PresenceBar
+                            docId={id}
+                            uid={user.uid}
+                            displayName={user.displayName}
+                            color={user.color}
+                            activeCell={activeCell}
+                            onUsersChange={setOnlineUsers}
+                        />
+                    )}
+
+                    {/* Save status indicator */}
+                    <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${saveStatus === "saved" ? "bg-green-500" :
+                                saveStatus === "saving" ? "bg-yellow-500" :
+                                    "bg-red-500"
+                            }`} />
+                        <span className="text-gray-500 text-xs">
+                            {saveStatus === "saved" ? "Saved" :
+                                saveStatus === "saving" ? "Saving..." :
+                                    "Error"}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -118,13 +135,15 @@ export default function DocPage() {
             />
 
             {/* Grid */}
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-hidden">
                 <Grid
                     docId={id}
                     setSaveStatus={setSaveStatus}
                     activeCell={activeCell}
                     setActiveCell={setActiveCell}
                     setActiveCellRaw={setActiveCellRaw}
+                    onlineUsers={onlineUsers}
+                    currentUid={user?.uid ?? ""}
                 />
             </div>
         </div>
