@@ -5,9 +5,6 @@ A real-time collaborative spreadsheet built with Next.js, TypeScript, Tailwind C
 ## Deployed Link
 https://sheets-clone-eta.vercel.app/
 
-## Demo Video
-
-
 ---
 
 ## Features
